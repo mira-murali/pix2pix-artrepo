@@ -1,7 +1,7 @@
 import os
-from util.util import select_images
+from util.util import copy_files
 
-if not os.path.isdir('blurred_images'):
-    os.mkdir('blurred_images')
+if not os.path.isdir('edges'):
+    os.mkdir('edges')
 
-select_images(images_dir='/media/nanda/Data/Research Data/Mira/ffhq-dataset/images1024x1024', resized_dir = 'blurred_images')
+copy_files(src_dir='blurred_images/', dest_dir = 'edges/')
