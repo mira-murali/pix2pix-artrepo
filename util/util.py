@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from PIL import Image
 import os
-
+import glob
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -94,3 +94,21 @@ def mkdir(path):
     """
     if not os.path.exists(path):
         os.makedirs(path)
+
+def merge_images(dirA, dirB, final_dir):
+    """
+    dirA contains images of type A
+    dirB contains images of type B
+    final_dir will store the images pairs {A, B}
+    """
+    imagesA = glob.glob(os.path.join(dirA, '*'))
+    imagesB = glob.glob(os.path.join(dirB, '*'))
+    imagesA.sort()
+    imagesB.sort()
+    for imgA_path, imgB_path in zip(imagesA, imagesB):
+        imgA = np.array(Image.open(imgA_path).convert('RGB'), dtype=np.uint8)
+        imgB = np.array(Image.open(imgB_path).convert('RGB'), dtype=np.uint8)
+        assert imgA.shape == imgB.shape, "Images are not the same size"
+        image_pair = np.concatenate(imgA, imgB)
+        img = Image.fromarray(image_pair)
+        img.save(os.path.join(final_dir, imgA_path[imgA_path.find('/')+1:]))
