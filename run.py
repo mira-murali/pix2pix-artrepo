@@ -1,5 +1,6 @@
 import os
 from util.util import copy_files
+from util.util import select_images
 
 if not os.path.isdir('edges'):
     os.mkdir('edges')

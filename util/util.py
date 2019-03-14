@@ -117,7 +117,7 @@ def merge_images(dirA, dirB, final_dir):
         last_slash = rev_path.find('/')
         img.save(os.path.join(final_dir, imgA_path[-last_slash:]))
 
-def select_images(images_dir, resized_dir):
+def select_images(images_dir, resized_dir, filename):
     """
     images_dir is the directory all of the ffhq dataset in order
     This function is going to grab the first 10 GB of data and apply blurring
@@ -131,7 +131,7 @@ def select_images(images_dir, resized_dir):
     num_images = int((dst_size/dir_size)*len(images))
     count = 0
     os.chdir(current_path)
-    with open('partA.txt', 'w') as f:
+    with open(filename, 'w') as f:
         while count < num_images:
             img = cv2.resize(cv2.imread(images[count]), (512, 512))
             median_img = cv2.medianBlur(img, 9)
@@ -141,7 +141,7 @@ def select_images(images_dir, resized_dir):
             rev_path = images[count][-1::-1]
             last_slash = rev_path.find('/')
             cv2.imwrite(os.path.join(resized_dir, images[count][-last_slash:]), pyr_img)
-            f.write(os.path.join(resized_dir, images[count][-last_slash:]))
+            f.write(os.path.join(resized_dir, images[count][-last_slash:])+'\n')
             count += 1
 
 def copy_files(src_dir, dest_dir, path_file='partA.txt'):
