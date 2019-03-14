@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 import os
 import glob
+import shutil
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -109,6 +110,23 @@ def merge_images(dirA, dirB, final_dir):
         imgA = np.array(Image.open(imgA_path).convert('RGB'), dtype=np.uint8)
         imgB = np.array(Image.open(imgB_path).convert('RGB'), dtype=np.uint8)
         assert imgA.shape == imgB.shape, "Images are not the same size"
-        image_pair = np.concatenate(imgA, imgB)
+        image_pair = np.concatenate((imgA, imgB), axis=1)
+        print(imgA.shape, imgB.shape, image_pair.shape)
         img = Image.fromarray(image_pair)
-        img.save(os.path.join(final_dir, imgA_path[imgA_path.find('/')+1:]))
+        imgname = imgA_path[-1::-1]
+        last_slash = imgname.find('/')
+        img.save(os.path.join(final_dir, imgA_path[len(imgA_path)-last_slash+1:]))
+
+def train_val_split(src_dir, train_name, val_name):
+    all_images = os.listdir(src_dir)
+    count = 0
+    for folder in [train_name, val_name]:
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+
+    while count < len(all_images):
+        if count+1 <= int(0.8*len(all_images)):
+            shutil.copy(os.path.join(src_dir, all_images[count]), train_name)
+        else:
+            shutil.copy(os.path.join(src_dir, all_images[count]), val_name)
+        count += 1
