@@ -24,6 +24,9 @@ from options.val_options import ValOptions
 from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
+import os 
+from util import html
+from util.visualizer import save_images
 
 if __name__ == '__main__':
     train_opt = TrainOptions().parse()   # get training options
