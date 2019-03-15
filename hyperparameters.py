@@ -1,0 +1,10 @@
+IN_CHANNELS = 4 # change to 3 if not using edge channel
+NUM_EPOCHS = 200
+BATCH_SIZE = 1
+NUM_IMAGES = 4
+EXP_NAME = 'trial'
+GPU_ID = '0'
+DATAROOT = 'data/ffhq/images512x512'
+DIS_FREQ = NUM_EPOCHS//100
+COLOR_NAME = 'blurred_images'
+BW_NAME = 'hed'
