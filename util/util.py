@@ -162,11 +162,11 @@ def copy_files(src_dir, dest_dir, path_file='partA.txt'):
                 index = -last_slash
             shutil.copy(os.path.join(src_dir, img_name[index:]), dest_dir)
 
-def train_val_split(src_dir, train_name, val_name=None):
-    if not val_name:
-        folders = [train_name]
+def train_val_split(src_dir, train_dir, val_dir=None):
+    if not val_dir:
+        folders = [train_dir]
     else:
-        folders = [train_name, val_name]
+        folders = [train_dir, val_dir]
     for folder in folders:
         if not os.path.isdir(folder):
             os.mkdir(folder)
@@ -174,9 +174,22 @@ def train_val_split(src_dir, train_name, val_name=None):
     all_images = os.listdir(src_dir)
     count = 0
     while count < len(all_images):
-        if count+1 <= int(0.8*len(all_images)):
-            shutil.copy(os.path.join(src_dir, all_images[count]), train_name)
+        if count + 1 < len(all_images) - 10:
+            shutil.copy(os.path.join(src_dir, all_images[count]), train_dir)
         else:
-            if val_name:
-                shutil.copy(os.path.join(src_dir, all_images[count]), val_name)
+            if val_dir:
+                shutil.copy(os.path.join(src_dir, all_images[count]), val_dir)
         count += 1
+
+def create_dir_tree(dataroot = './dataset/'):
+    mkdir(os.path.join(dataroot, 'B', 'train'))
+    mkdir(os.path.join(dataroot, 'B', 'val'))
+    mkdir(os.path.join(dataroot, 'B', 'test'))
+    mkdir(os.path.join(dataroot, 'A', 'train', 'blurred_images'))
+    mkdir(os.path.join(dataroot, 'A', 'train', 'hed'))
+    mkdir(os.path.join(dataroot, 'A', 'val', 'blurred_images'))
+    mkdir(os.path.join(dataroot, 'A', 'val', 'hed'))
+    mkdir(os.path.join(dataroot, 'A', 'test', 'blurred_images'))
+    mkdir(os.path.join(dataroot, 'A', 'test', 'hed'))
+
+
