@@ -27,6 +27,7 @@ from util.visualizer import Visualizer
 import os 
 from util import html
 from util.visualizer import save_images
+from tqdm import tqdm
 
 if __name__ == '__main__':
     train_opt = TrainOptions().parse()   # get training options
