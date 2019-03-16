@@ -162,21 +162,33 @@ def copy_files(src_dir, dest_dir, path_file='partA.txt'):
                 index = -last_slash
             shutil.copy(os.path.join(src_dir, img_name[index:]), dest_dir)
 
-def train_val_split(src_dir, train_name, val_name=None):
-    if not val_name:
-        folders = [train_name]
+def train_val_split(src_dir, train_dir, val_dir=None):
+    from multiprocessing import Pool 
+    from tqdm import tqdm
+    if not val_dir:
+        folders = [train_dir]
     else:
-        folders = [train_name, val_name]
+        folders = [train_dir, val_dir]
     for folder in folders:
         if not os.path.isdir(folder):
             os.mkdir(folder)
 
     all_images = os.listdir(src_dir)
-    count = 0
-    while count < len(all_images):
-        if count+1 <= int(0.8*len(all_images)):
-            shutil.copy(os.path.join(src_dir, all_images[count]), train_name)
-        else:
-            if val_name:
-                shutil.copy(os.path.join(src_dir, all_images[count]), val_name)
-        count += 1
+    all_images.sort()
+    p = Pool()
+    p.starmap_async(shutil.copy, [(os.path.join(src_dir, img), train_dir) for img in all_images[:-10]])
+    if val_dir:
+        p.starmap(shutil.copy, [(os.path.join(src_dir, img), val_dir) for img in all_images[-10:]])
+
+def create_dir_tree(dataroot = './dataset/'):
+    mkdir(os.path.join(dataroot, 'B', 'train'))
+    mkdir(os.path.join(dataroot, 'B', 'val'))
+    mkdir(os.path.join(dataroot, 'B', 'test'))
+    mkdir(os.path.join(dataroot, 'A', 'train', 'blurred_images'))
+    mkdir(os.path.join(dataroot, 'A', 'train', 'hed'))
+    mkdir(os.path.join(dataroot, 'A', 'val', 'blurred_images'))
+    mkdir(os.path.join(dataroot, 'A', 'val', 'hed'))
+    mkdir(os.path.join(dataroot, 'A', 'test', 'blurred_images'))
+    mkdir(os.path.join(dataroot, 'A', 'test', 'hed'))
+
+
