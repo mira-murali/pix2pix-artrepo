@@ -1,6 +1,6 @@
 IN_CHANNELS = 4 # change to 3 if not using edge channel
-NUM_EPOCHS = 300
-BATCH_SIZE = 2
+NUM_EPOCHS = 200
+BATCH_SIZE = 16
 NUM_VAL = 1 # number of images during validation
 NUM_TEST = 50 # number of images during testing
 EXP_NAME = 'trial'
