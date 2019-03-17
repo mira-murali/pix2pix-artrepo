@@ -35,7 +35,10 @@ def save_images(image_dir, visuals, image_path, epoch, aspect_ratio=1.0, width=2
         os.makedirs(image_dir)
     for label, im_data in visuals.items():
         im = util.tensor2im(im_data)
-        image_name = '%s_%s_%s.png' % (str(epoch), name, label)
+        if epoch:
+            image_name = '%s_%s_%s.png' % (str(epoch), name, label)
+        else:
+            image_name = '%s_%s.png' % (name, label)
         save_path = os.path.join(image_dir, image_name)
         h, w, _ = im.shape
         if aspect_ratio > 1.0:
