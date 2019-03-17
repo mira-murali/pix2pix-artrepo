@@ -163,6 +163,8 @@ def copy_files(src_dir, dest_dir, path_file='partA.txt'):
             shutil.copy(os.path.join(src_dir, img_name[index:]), dest_dir)
 
 def train_val_split(src_dir, train_dir, val_dir=None):
+    from multiprocessing import Pool 
+    from tqdm import tqdm
     if not val_dir:
         folders = [train_dir]
     else:
@@ -172,14 +174,11 @@ def train_val_split(src_dir, train_dir, val_dir=None):
             os.mkdir(folder)
 
     all_images = os.listdir(src_dir)
-    count = 0
-    while count < len(all_images):
-        if count + 1 < len(all_images) - 10:
-            shutil.copy(os.path.join(src_dir, all_images[count]), train_dir)
-        else:
-            if val_dir:
-                shutil.copy(os.path.join(src_dir, all_images[count]), val_dir)
-        count += 1
+    all_images.sort()
+    p = Pool()
+    p.starmap_async(shutil.copy, [(os.path.join(src_dir, img), train_dir) for img in all_images[:-10]])
+    if val_dir:
+        p.starmap(shutil.copy, [(os.path.join(src_dir, img), val_dir) for img in all_images[-10:]])
 
 def create_dir_tree(dataroot = './dataset/'):
     mkdir(os.path.join(dataroot, 'B', 'train'))

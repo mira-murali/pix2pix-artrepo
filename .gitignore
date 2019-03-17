@@ -2,3 +2,5 @@ checkpoints/
 blurred_images/
 *dataset*
 results/
+dataset/
+*__pycache__*

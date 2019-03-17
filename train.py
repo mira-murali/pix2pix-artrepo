@@ -24,7 +24,11 @@ from options.val_options import ValOptions
 from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
-from test import val
+import os
+from util import html
+from util.visualizer import save_images, print_current_losses
+from tqdm import tqdm
+import hyperparameters as hyp
 
 if __name__ == '__main__':
     train_opt = TrainOptions().parse()   # get training options
@@ -34,25 +38,26 @@ if __name__ == '__main__':
 
     model = create_model(train_opt)      # create a model given opt.model and other options
     model.setup(train_opt)               # regular setup: load and print networks; create schedulers
-    visualizer = Visualizer(train_opt)   # create a visualizer that display/save images and plots
+    # visualizer = Visualizer(train_opt)   # create a visualizer that display/save images and plots
     total_iters = 0                # the total number of training iterations
 
     val_opt = ValOptions().parse()
     val_opt.phase = 'val'
     val_opt.batch_size = 1
 
+    val_opt.dataset_mode = 'aligned'
     val_dataset = create_dataset(val_opt)
-    
+
     for epoch in range(train_opt.epoch_count, train_opt.niter + train_opt.niter_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
         epoch_start_time = time.time()  # timer for entire epoch
         iter_data_time = time.time()    # timer for data loading per iteration
         epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
         model.isTrain = True
-        for i, data in enumerate(train_dataset):  # inner loop within one epoch
+        for i, data in tqdm(enumerate(train_dataset)):  # inner loop within one epoch
             iter_start_time = time.time()  # timer for computation per iteration
             if total_iters % train_opt.print_freq == 0:
                 t_data = iter_start_time - iter_data_time
-            visualizer.reset()
+            # visualizer.reset()
             total_iters += train_opt.batch_size
             epoch_iter += train_opt.batch_size
             model.set_input(data)         # unpack data from dataset and apply preprocessing
@@ -60,15 +65,17 @@ if __name__ == '__main__':
 
             if total_iters % train_opt.display_freq == 0:   # display images on visdom and save images to a HTML file
                 save_result = total_iters % train_opt.update_html_freq == 0
-                model.compute_visuals()
-                visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
+                # model.compute_visuals()
+                img_path = model.get_image_paths()
+                save_images(hyp.TRAIN_DIR, model.get_current_visuals(), img_path)
+                # visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
 
             if total_iters % train_opt.print_freq == 0:    # print training losses and save logging information to the disk
                 losses = model.get_current_losses()
                 t_comp = (time.time() - iter_start_time) / train_opt.batch_size
-                visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
-                if train_opt.display_id > 0:
-                    visualizer.plot_current_losses(epoch, float(epoch_iter) / train_dataset_size, losses)
+                print_current_losses(train_opt, epoch, epoch_iter, losses, t_comp, t_data)
+                # if train_opt.display_id > 0:
+                #     visualizer.plot_current_losses(epoch, float(epoch_iter) / train_dataset_size, losses)
 
             if total_iters % train_opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
@@ -80,26 +87,26 @@ if __name__ == '__main__':
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
             model.save_networks('latest')
             model.save_networks(epoch)
-            val(epoch, val_dataset)
+
         # web_dir = os.path.join(val_opt.results_dir, val_opt.name, '%s_%s' % (val_opt.phase, train_opt.epoch))  # define the website directory
         # webpage = html.HTML(web_dir, 'Experiment = %s, Phase = %s, Epoch = %s' % (val_opt.name, val_opt.phase, train_opt.epoch))
-        # # test with eval mode. This only affects layers like batchnorm and dropout.
-        # # For [pix2pix]: we use batchnorm and dropout in the original pix2pix. You can experiment it with and without eval() mode.
-        # # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
-        # if val_opt.eval:
-        #     model.eval()
-        # for i, data in enumerate(val_dataset):
-        #     if i >= val_opt.num_test:  # only apply our model to opt.num_test images.
-        #         break
-        #     model.set_input(data)  # unpack data from data loader
-        #     model.test()           # run inference
-        #     visuals = model.get_current_visuals()  # get image results
-        #     img_path = model.get_image_paths()     # get image paths
-        #     if i % 5 == 0:  # save images to an HTML file
-        #         print('processing (%04d)-th image... %s' % (i, img_path))
-        #     save_images(webpage, visuals, img_path, aspect_ratio=val_opt.aspect_ratio, width=val_opt.display_winsize)
+        # test with eval mode. This only affects layers like batchnorm and dropout.
+        # For [pix2pix]: we use batchnorm and dropout in the original pix2pix. You can experiment it with and without eval() mode.
+        # For [CycleGAN]: It should not affect CycleGAN as CycleGAN uses instancenorm without dropout.
+        if val_opt.eval:
+            model.eval()
+        for i, data in enumerate(val_dataset):
+            if i >= val_opt.num_test:  # only apply our model to opt.num_test images.
+                break
+            model.set_input(data)  # unpack data from data loader
+            model.test()           # run inference
+            visuals = model.get_current_visuals()  # get image results
+            img_path = model.get_image_paths()     # get image paths
+            if i % 5 == 0:  # save images to an HTML file
+                print('processing (%04d)-th image...' % (i))
+            save_images(hyp.VAL_DIR, visuals, img_path, aspect_ratio=val_opt.aspect_ratio, width=val_opt.display_winsize)
         # webpage.save()  # save the HTML
-            
+
 
         print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, train_opt.niter + train_opt.niter_decay, time.time() - epoch_start_time))
         model.update_learning_rate()                     # update learning rates at the end of every epoch.
