@@ -71,5 +71,7 @@ You can specify the number of epochs, the experiment name, the batch size and ot
 ### Testing
 To test the model, simply type this in the command line:
 
-`python test.py
+`python test.py --model pix2pix
 `
+
+It is crucial that you set the model name as 'pix2pix' in the command line for it to test without errors.
