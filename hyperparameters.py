@@ -1,13 +1,14 @@
 IN_CHANNELS = 4 # change to 3 if not using edge channel
-NUM_EPOCHS = 300
+NUM_EPOCHS = 20
 BATCH_SIZE = 15
 NUM_VAL = 10 # number of images during validation
 NUM_TEST = 500 # number of images during testing
-EXP_NAME = 'trial'
+EXP_NAME = 'testing_val'
 GPU_ID = '0'
-DATAROOT = 'data/ffhq/images512x512'
+DATAROOT = 'trial_dataset/'
 COLOR_NAME = 'blurred_images'
 BW_NAME = 'hed'
 DIS_FREQ = 10
 TRAIN_DIR = 'checkpoints/'+EXP_NAME+'/train/results'
 VAL_DIR = 'checkpoints'+'/'+EXP_NAME+'/val/results'
+TEST_DIR = 'checkpoints'+'/'+EXP_NAME+'/test/results'

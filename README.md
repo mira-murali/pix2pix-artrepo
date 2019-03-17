@@ -66,4 +66,10 @@ To train the model, type this in the command line:
 `python train.py
 `
 
-You can specify the number of epochs, the experiment name, the batch size and other hyperparameters in `hyperparameters.py`
+You can specify the number of epochs, the experiment name, the batch size and other hyperparameters in `hyperparameters.py`. This will also perform validation on 10 images at the end of each epoch.
+
+### Testing
+To test the model, simply type this in the command line:
+
+`python test.py
+`
