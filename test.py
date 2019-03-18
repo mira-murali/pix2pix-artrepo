@@ -65,7 +65,7 @@ def test():
         img_path = model.get_image_paths()     # get image paths
         if i % 5 == 0:  # save images to an HTML file
             print('processing (%04d)-th image...' % (i))
-        save_images(hyp.TEST_DIR, visuals, img_path, epoch = None, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
+        save_images(hyp.TEST_DIR, visuals, img_path, epoch = i, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
     # webpage.save()  # save the HTML
 
 

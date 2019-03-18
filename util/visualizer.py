@@ -28,14 +28,14 @@ def save_images(image_dir, visuals, image_path, epoch, aspect_ratio=1.0, width=2
     # image_dir = webpage.get_image_dir()
     short_path = ntpath.basename(image_path[0][0][0])
     name = os.path.splitext(short_path)[0]
-
+    imgs_to_save = {}
     # webpage.add_header(name)
     # ims, txts, links = [], [], []
     if not os.path.isdir(image_dir):
         os.makedirs(image_dir)
     for label, im_data in visuals.items():
         im = util.tensor2im(im_data)
-        if epoch:
+        if epoch is not None:
             image_name = '%s_%s_%s.png' % (str(epoch), name, label)
         else:
             image_name = '%s_%s.png' % (name, label)
@@ -45,7 +45,11 @@ def save_images(image_dir, visuals, image_path, epoch, aspect_ratio=1.0, width=2
             im = imresize(im, (h, int(w * aspect_ratio)), interp='bicubic')
         if aspect_ratio < 1.0:
             im = imresize(im, (int(h / aspect_ratio), w), interp='bicubic')
-        util.save_image(im, save_path)
+        imgs_to_save[label] = im
+    fake = imgs_to_save['fake_B']
+    real = imgs_to_save['real_B']
+    im = np.concatenate((real, fake), axis=1)
+    util.save_image(im, save_path)
 
     #     ims.append(image_name)
     #     txts.append(label)
