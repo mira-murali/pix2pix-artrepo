@@ -118,31 +118,33 @@ def merge_images(dirA, dirB, final_dir):
         last_slash = rev_path.find('/')
         img.save(os.path.join(final_dir, imgA_path[-last_slash:]))
 
-def select_images(images_dir, resized_dir, filename):
+def select_images(images_dir, resized_dir, filename, d_size = 0):
     """
     images_dir is the directory all of the ffhq dataset in order
     This function is going to grab the first 10 GB of data and apply blurring
     """
-    current_path = os.getcwd()
-    os.chdir(images_dir)
-    dst_size = 10e9
-    images = glob.glob(os.path.join(images_dir, '*'))
+    # current_path = os.getcwd()
+    # os.chdir(images_dir)
+    
+    images = os.listdir(images_dir)
     images.sort()
+    dst_size = d_size
     dir_size = sum(os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f))
-    num_images = int((dst_size/dir_size)*len(images))
+    if not d_size:
+        dst_size = dir_size
+        num_images = int((dst_size/dir_size)*len(images))
+    else:
+        num_images = d_size
     count = 0
-    os.chdir(current_path)
     with open(filename, 'w') as f:
         while count < num_images:
-            img = cv2.resize(cv2.imread(images[count]), (512, 512))
+            img = cv2.resize(cv2.imread(os.path.join(images_dir, images[count])), (512, 512))
             median_img = cv2.medianBlur(img, 9)
             for i in range(20):
                 median_img = cv2.medianBlur(median_img, 9)
             pyr_img = cv2.pyrMeanShiftFiltering(median_img, 21, 15)
-            rev_path = images[count][-1::-1]
-            last_slash = rev_path.find('/')
-            cv2.imwrite(os.path.join(resized_dir, images[count][-last_slash:]), pyr_img)
-            f.write(os.path.join(resized_dir, images[count][-last_slash:])+'\n')
+            cv2.imwrite(os.path.join(resized_dir, images[count]), pyr_img)
+            f.write(os.path.join(resized_dir, images[count])+'\n')
             count += 1
 
 def copy_files(src_dir, dest_dir, path_file='partA.txt'):
@@ -192,3 +194,13 @@ def create_dir_tree(dataroot = './dataset/'):
     mkdir(os.path.join(dataroot, 'A', 'test', 'hed'))
 
 
+def rename_files(dir):
+    filenames = os.listdir(dir)
+    filenames.sort()
+    count = 0
+    for filename in filenames:
+        name, ext = os.path.splitext(filename)
+        while os.path.isfile(str(count)+ext):
+            count += 1
+        os.rename(os.path.join(dir, filename), os.path.join(dir, str(count)+ext))
+        count += 1

@@ -4,3 +4,4 @@ blurred_images/
 results/
 dataset/
 *__pycache__*
+*.txt

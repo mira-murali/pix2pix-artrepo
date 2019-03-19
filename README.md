@@ -1,6 +1,24 @@
 # pix2pix-artrepo
 Artistic representations using pix2pix GANs
-### Preparing the Data
+### Brief Overview:
+In this project, we use the pix2pix model to learn the representation B (a face) from representation A (a blurry version of the same face concatenated with a black-and-white sketch of the face).
+
+### Dataset and Data Preprocessing:
+We use the Flick-Face-HQ dataset for training and validation. The dataset can be found [here](https://github.com/NVlabs/ffhq-dataset)
+For testing, we collected 5000 non-face images. You can find them [here](https://drive.google.com/open?id=1IbWTFbcgL6ccZ7IY6qe2kXHbZ_-mKSsH)
+
+In order to preprocess the data to obtain the blurred images, run the following code:
+`from util.util import select_images
+select_images(images_dir, resized_dir, filename, d_size)
+`
+
+The code inputs all the original images from `images_dir`, resizes `d_size` of them to 512x512, applies blurring and saves them to `resized_dir`. It also generates a .txt file with the name `filename` which contains the path to all blurred images.
+
+It was useful to have a `d_size` (which is essentially the number of images to process from `images_dir`) because we trained on a subset of the FFHQ dataset. 
+
+In order to generate edge images, run `HED.py` from `util.HED` from inside the directory of your original_images. The code will create a folder called 'hed' inside which it will save the edge images.
+
+### Data Structuring
 Before running the code, ensure that you have the data in the following format:
 
 images/
